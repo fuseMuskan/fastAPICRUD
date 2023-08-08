@@ -36,27 +36,6 @@ def create_employees(name: str, department: str, _db: Session = Depends(get_db))
     except HTTPException as exce:
         raise exce(status_code = status.HTTP_400_BAD_REQUEST)
 
-
-@app.get("/employees/")
-def get_employees(_db: Session = Depends(get_db)):
-    """This function returns employee
-
-    Args:
-        db (Session, optional): Defaults to Depends(get_db).
-
-    Raises:
-        HTTPException: raises exception in case of bad request
-
-    Returns:
-       _type_: json format with {"status": status_code, "employees": employees}
-    """
-    employees = _db.query(Employee).all()
-    if not employees:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
-                            detail="Employee not found")
-    return {"status": status.HTTP_200_OK, "employees": employees}
-
-
 @app.get("/employees/")
 @app.get("/employees/{employee_id}")
 def get_employee(employee_id: str = None, _db: Session = Depends(get_db)):
