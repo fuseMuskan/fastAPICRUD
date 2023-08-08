@@ -29,7 +29,7 @@ def get_employees(employee_id: str, db: Session = Depends(get_db)):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
                             detail=f"Employee with {employee_id} not found")
     
-    return {"status": "Success", "employee": employee}
+    return {"status_code": status.HTTP_200_OK, "employee": employee}
 
 @app.delete("/employees/{employee_id}")
 def delete_employee(employee_id: str, db: Session = Depends(get_db)):
@@ -42,7 +42,25 @@ def delete_employee(employee_id: str, db: Session = Depends(get_db)):
     employee_query.delete(synchronize_session=False)
     db.commit()
     return Response(status_code = status.HTTP_204_NO_CONTENT)
+
+@app.put("/employees/{employee_id}/{column}/{new_value}")
+def update_employee(employee_id: str, column: str, new_value: str, db: Session = Depends(get_db)):
+    employee_query = db.query(Employee).filter(Employee.id == employee_id)
+    db_employee = employee_query.first()
+
+    if not db_employee:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                            detail=f"Employee with id {employee_id} not found")
+
+    setattr(db_employee, column, new_value) # Set the new value for the specified column
+    db.add(db_employee)
+    db.commit()
+    db.refresh(db_employee)
     
+    return {"status": "success", "employee": db_employee}
+
+    
+
 
 
 
